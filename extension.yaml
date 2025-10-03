@@ -1,0 +1,7 @@
+name: ValtriaPyTools
+author: VALTRIA Digital
+revit_minimum_version: 2019
+revit_maximum_version: 2026
+library_dirs:
+  - lib
+
