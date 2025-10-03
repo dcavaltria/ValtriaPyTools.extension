@@ -1,0 +1,33 @@
+# Python / pyRevit
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# pyRevit runtime caches
+*.dll
+*.pickle
+*.tmp
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS clutter
+.DS_Store
+Thumbs.db
+
+# Logs / local configs
+*.log
+pyRevit_config.ini
+
+# Build output
+/dist/
+/build/
+
+# Git
+.git/
