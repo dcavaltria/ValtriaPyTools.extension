@@ -1,20 +1,21 @@
 # VALTRIA PyTools
 
-Extensión de pyRevit que aporta utilidades de control de calidad y gestión de impresión para los equipos de VALTRIA.
+Extensiï¿½n de pyRevit que aporta utilidades de control de calidad y gestiï¿½n de impresiï¿½n para los equipos de VALTRIA.
 
-## Características
-- **VALTRIA Tools**: pestaña propia en el ribbon de Revit que agrupa las herramientas.
-- **Ribbon Inspector**: botón de diagnóstico que lista las pestañas cargadas y resalta duplicados.
-- **Crear Print Set**: genera un conjunto de impresión desde las hojas seleccionadas, con confirmación si el nombre ya existe.
+## Caracterï¿½sticas
+- **VALTRIA Tools**: pestaï¿½a propia en el ribbon de Revit que agrupa las herramientas.
+- **Ribbon Inspector**: botï¿½n de diagnï¿½stico que lista las pestaï¿½as cargadas y resalta duplicados.
+- **Crear Print Set**: genera un conjunto de impresiï¿½n desde las hojas seleccionadas, con confirmaciï¿½n si el nombre ya existe.
 
-## Instalación rápida
+## Instalaciï¿½n rï¿½pida
 1. Descarga o clona este repositorio.
 2. Copia la carpeta ValtriaPyTools.extension en %APPDATA%\pyRevit\Extensions\.
-3. Ejecuta pyrevit caches clear y después pyrevit reload (o reinicia Revit).
-4. Abre Revit y verifica la pestaña **VALTRIA Tools**.
+3. Ejecuta pyrevit caches clear y despuï¿½s pyrevit reload (o reinicia Revit).
+4. Abre Revit y verifica la pestaï¿½a **VALTRIA Tools**.
+5. quiero aÃ±adir un linea mas en mi githbu para controld e veriones 
 
 ## Uso
-- **Ribbon Inspector**: abre la lista de pestañas activas y marca duplicados potenciales. Útil cuando aparezcan errores tipo Can not de/activate native item.
+- **Ribbon Inspector**: abre la lista de pestaï¿½as activas y marca duplicados potenciales. ï¿½til cuando aparezcan errores tipo Can not de/activate native item.
 - **Crear Print Set**: selecciona hojas en el Project Browser, lanza la herramienta, proporciona un nombre y confirma si quieres sobrescribir sets existentes.
 
 ## Estructura principal
@@ -31,14 +32,14 @@ ValtriaPyTools.extension/
 `
 
 ## Desarrollo
-- Los módulos comunes viven en lib/valtria_core/.
-- Para añadir nuevos botones, sigue el patrón Nombre.panel/Nueva Herramienta.pushbutton/ con su propio undle.yaml y script.py.
+- Los mï¿½dulos comunes viven en lib/valtria_core/.
+- Para aï¿½adir nuevos botones, sigue el patrï¿½n Nombre.panel/Nueva Herramienta.pushbutton/ con su propio undle.yaml y script.py.
 - Ejecuta pyrevit env para revisar las rutas cargadas si algo no aparece en el ribbon.
 
-## Resolución de problemas
-- Si ves el error Can not de/activate native item: ... RibbonTab, revisa pestañas duplicadas con **Ribbon Inspector**.
-- Asegúrate de que sólo exista una carpeta con el mismo nombre de pestaña en %APPDATA% y %PROGRAMDATA%.
-- Limpia cachés (pyrevit caches clear) y recarga (pyrevit reload).
+## Resoluciï¿½n de problemas
+- Si ves el error Can not de/activate native item: ... RibbonTab, revisa pestaï¿½as duplicadas con **Ribbon Inspector**.
+- Asegï¿½rate de que sï¿½lo exista una carpeta con el mismo nombre de pestaï¿½a en %APPDATA% y %PROGRAMDATA%.
+- Limpia cachï¿½s (pyrevit caches clear) y recarga (pyrevit reload).
 
 ## Licencia
-Incluye aquí la licencia que corresponda al proyecto.
+Incluye aquï¿½ la licencia que corresponda al proyecto.
