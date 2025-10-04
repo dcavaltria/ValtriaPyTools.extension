@@ -1,48 +1,67 @@
-# VALTRIA PyTools
+# Valtria PyTools
 
-Extensi�n de pyRevit que aporta utilidades de control de calidad y gesti�n de impresi�n para los equipos de VALTRIA.
+Extensión de pyRevit para los equipos de VALTRIA con utilidades de control de calidad, gestión de impresión y soporte a modelado MEP.
 
-## Caracter�sticas
-- **VALTRIA Tools**: pesta�a propia en el ribbon de Revit que agrupa las herramientas.
-- **Ribbon Inspector**: bot�n de diagn�stico que lista las pesta�as cargadas y resalta duplicados.
-- **BIM Blog**: acceso directo al artículo "BIM para salas limpias" publicado en valtria.com.
-- **Crear Print Set**: genera un conjunto de impresi�n desde las hojas seleccionadas, con confirmaci�n si el nombre ya existe.
+## Requisitos
+- Revit 2019 a 2026.
+- pyRevit estable con runtime de IronPython 2.7.
+- Permisos de lectura/escritura en las carpetas donde se generarán IFC, PDF y CSV.
 
-## Instalaci�n r�pida
+## Instalación
 1. Descarga o clona este repositorio.
-2. Copia la carpeta ValtriaPyTools.extension en %APPDATA%\pyRevit\Extensions\.
-3. Ejecuta pyrevit caches clear y despu�s pyrevit reload (o reinicia Revit).
-4. Abre Revit y verifica la pesta�a **VALTRIA Tools**.
-5. quiero añadir un linea mas en mi githbu para controld e veriones 
+2. Copia la carpeta `ValtriaPyTools.extension` en `%APPDATA%\pyRevit\Extensions` o en la carpeta de extensiones corporativa.
+3. Ejecuta `pyrevit caches clear` y después `pyrevit reload` (o reinicia Revit) para recargar la extensión.
+4. Abre Revit y verifica que aparecen las pestañas **VALTRIA Tools** y **ValtriaPyTools**.
 
-## Uso
-- **Ribbon Inspector**: abre la lista de pesta�as activas y marca duplicados potenciales. �til cuando aparezcan errores tipo Can not de/activate native item.
-- **BIM Blog**: abre el navegador predeterminado en el artículo informativo sobre BIM para salas limpias.
-- **Crear Print Set**: selecciona hojas en el Project Browser, lanza la herramienta, proporciona un nombre y confirma si quieres sobrescribir sets existentes.
+## Qué incluye cada botón
+
+### Pestaña: VALTRIA Tools (existente)
+- **Ribbon Inspector**: diagnostica pestañas duplicadas y estados de carga.
+- **BIM Blog**: abre el artículo "BIM para salas limpias" publicado en valtria.com.
+- **Crear Print Set**: genera un Print Set a partir de las hojas seleccionadas (con confirmación si el nombre ya existe).
+
+### Pestaña: ValtriaPyTools (nueva)
+- **IFC Export Views**: exporta vistas seleccionadas a archivos IFC. Incluye recordatorio para aislar elementos por vista cuando se requiera precisión total.
+- **Print to PDF (Views/Sheets)**: imprime vistas u hojas seleccionadas en PDF usando un ViewSet temporal sin modificar el PrintSet activo.
+- **Auto-Fit 3D Section Box**: ajusta el Section Box de la vista 3D activa a la selección (o al modelo visible) con un margen de 150 mm.
+- **List HVAC Systems (CSV)**: resume los sistemas de climatización con número de elementos y longitud total en metros.
+- **Ducts & Accessories Takeoff (CSV)**: genera un takeoff con conductos, accesorios y uniones, incluyendo categoría, sistema, tamaño, longitud, nivel, workset y comentarios.
+
+## Limitaciones IFC por vista
+La API de Revit no aísla completamente los elementos por vista durante la exportación a IFC. Se incluye un TODO para implementar un patrón de aislamiento temporal si se requiere un control absoluto. Para resultados limpios se recomienda duplicar la vista, aislar los elementos deseados manualmente y ejecutar la herramienta.
+
+## Notas de compatibilidad IronPython
+- Los scripts evitan anotaciones de tipo, f-strings y cualquier sintaxis exclusiva de Python 3.
+- Las dependencias compartidas residen en `_lib/valtria_lib.py` para mantener compatibilidad con IronPython 2.7.
+- Las rutas de salida se crean automáticamente si no existen.
 
 ## Estructura principal
-`
+```
 ValtriaPyTools.extension/
   extension.yaml
-  VALTRIA Tools.tab/
-    QA.panel/
-      Ribbon Inspector.pushbutton/
-      BIM Blog.pushbutton/
-    Sheets.panel/
-      Crear Print Set.pushbutton/
-  lib/valtria_core/
-  _repo/
-`
+  ValtriaPyTools.tab/
+    Exports.panel/
+    Printing.panel/
+    Views.panel/
+    HVAC.panel/
+    Takeoff.panel/
+  VALTRIA Tools.tab/  (herramientas históricas)
+  _lib/
+  README.md
+```
 
-## Desarrollo
-- Los m�dulos comunes viven en lib/valtria_core/.
-- Para a�adir nuevos botones, sigue el patr�n Nombre.panel/Nueva Herramienta.pushbutton/ con su propio undle.yaml y script.py.
-- Ejecuta pyrevit env para revisar las rutas cargadas si algo no aparece en el ribbon.
+## QA Rápido
+1. Abrir Revit, recargar pyRevit y confirmar la pestaña **ValtriaPyTools** con los cinco botones nuevos.
+2. **Print to PDF (Views/Sheets)**: seleccionar una vista y una hoja, ejecutar la herramienta y validar que genera PDFs en la carpeta seleccionada sin alterar el PrintSet activo.
+3. **Auto-Fit 3D Section Box**: en una vista 3D, seleccionar dos elementos y ejecutar la herramienta para comprobar el ajuste con margen.
+4. **List HVAC Systems (CSV)**: ejecutar en un modelo con sistemas de climatización y revisar que el CSV incluya nombre, recuento y longitud en metros.
+5. **Ducts & Accessories Takeoff (CSV)**: validar que el CSV contiene filas para conductos, uniones y accesorios con las columnas definidas.
+6. **IFC Export Views**: seleccionar vistas y confirmar la generación de archivos `.ifc` en la carpeta objetivo (teniendo presente la limitación descrita arriba).
 
-## Resoluci�n de problemas
-- Si ves el error Can not de/activate native item: ... RibbonTab, revisa pesta�as duplicadas con **Ribbon Inspector**.
-- Aseg�rate de que s�lo exista una carpeta con el mismo nombre de pesta�a en %APPDATA% y %PROGRAMDATA%.
-- Limpia cach�s (pyrevit caches clear) y recarga (pyrevit reload).
+## Resolución de problemas
+- Si aparece el error `Can not de/activate native item`, utilizar **Ribbon Inspector** para revisar pestañas duplicadas.
+- Ante errores durante la ejecución de los scripts, se mostrará un `forms.alert` y el detalle quedará en la consola de pyRevit.
+- Usar `pyrevit env` para verificar rutas cargadas si alguna pestaña no aparece.
 
 ## Licencia
-Incluye aqu� la licencia que corresponda al proyecto.
+Incluye aquí la licencia que corresponda al proyecto.
