@@ -1,5 +1,5 @@
-﻿title: Valtria BIM Blog
-tooltip: Abre el articulo sobre BIM para salas limpias en valtria.com.
+﻿title: Ribbon Inspector
+tooltip: Inspecciona la configuracion del ribbon de pyRevit.
 author: VALTRIA Digital
 min_revit_version: 2019
 max_revit_version: 2026
