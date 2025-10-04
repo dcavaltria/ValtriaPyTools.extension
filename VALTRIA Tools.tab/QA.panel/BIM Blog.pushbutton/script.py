@@ -11,7 +11,12 @@ URL = "https://valtria.com/en/blog/bim-para-salas-limpias/"
 logger = script.get_logger()
 
 try:
-    webbrowser.open(URL, new=2)
+    try:
+        webbrowser.open_new_tab(URL)
+    except TypeError:
+        # IronPython puede llamar a la versión integrada de ``open`` por error.
+        # Volvemos a intentar con ``webbrowser.open`` usando argumentos posicionales.
+        webbrowser.open(URL, 2)
     logger.info("Abriendo el artículo: %s", URL)
 except Exception as error:  # pragma: no cover - entorno de Revit
     logger.error("No se pudo abrir el navegador: %s", error)
