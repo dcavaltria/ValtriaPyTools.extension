@@ -236,7 +236,7 @@ def build_ifc_options(doc, view, configuration, debug):
 
 
 def _ensure_ifc_path(folder, name):
-    base = clean_name(name)
+    base = clean_name(name)[:150]
     full_path = os.path.join(folder, base)
     if not full_path.lower().endswith('.ifc'):
         full_path += '.ifc'
@@ -315,4 +315,5 @@ if __name__ == '__main__':
         main()
     except Exception as main_error:
         log_exception(main_error)
+
 
