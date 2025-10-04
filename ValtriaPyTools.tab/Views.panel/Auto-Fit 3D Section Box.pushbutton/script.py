@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 """Auto-fit section box to selection or visible elements in active 3D view."""
+
+import os
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+EXTENSION_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, '..', '..', '..'))
+LIB_DIR = os.path.join(EXTENSION_DIR, '_lib')
+for _path in (EXTENSION_DIR, LIB_DIR):
+    if _path and _path not in sys.path:
+        sys.path.insert(0, _path)
 
 from Autodesk.Revit.DB import (
     BoundingBoxXYZ,
