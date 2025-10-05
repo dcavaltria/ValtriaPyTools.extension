@@ -26,6 +26,18 @@ from Autodesk.Revit.UI import TaskDialog
 from pyrevit import forms, revit
 
 
+class SelectListItem(object):
+    """Wrapper with display name for selection dialogs."""
+
+    def __init__(self, value, label):
+        self.value = value
+        self.label = label
+
+    @property
+    def name(self):
+        return self.label
+
+
 def ask_string(title, prompt, default_text):
     try:
         return forms.ask_for_string(default=default_text, prompt=prompt, title=title)
@@ -92,9 +104,18 @@ def prompt_user_pick_sheets(doc):
     all_sheets = list(FilteredElementCollector(doc).OfClass(ViewSheet))
     if not all_sheets:
         return []
-    items = [forms.TemplateListItem(sheet, name=u"{0} | {1}".format(sheet.SheetNumber, sheet.Name)) for sheet in all_sheets]
-    picked = forms.SelectFromList.show(items, title="Selecciona Sheets", multiselect=True, button_name="Usar estas")
-    return [item.item for item in picked] if picked else []
+    items = []
+    for sheet in all_sheets:
+        label = u"{0} | {1}".format(sheet.SheetNumber or "", sheet.Name or "")
+        items.append(SelectListItem(sheet, label))
+    picked = forms.SelectFromList.show(
+        items,
+        title="Selecciona Sheets",
+        multiselect=True,
+        button_name="Usar estas",
+        name_attr='name',
+    )
+    return [item.value for item in picked] if picked else []
 
 
 def sheet_sort_key(sheet):
@@ -195,6 +216,18 @@ def save_print_set_without_changing_current(doc, viewset, set_name):
             pass
 
 
+def format_sheet_list(viewset):
+    names = []
+    for sheet in viewset:
+        try:
+            number = sheet.SheetNumber or ''
+            name = sheet.Name or ''
+            names.append(u"{0} | {1}".format(number, name))
+        except Exception:
+            names.append(str(sheet))
+    return names
+
+
 def main():
     doc = revit.doc
     if doc is None:
@@ -222,9 +255,10 @@ def main():
         save_print_set_without_changing_current(doc, viewset, set_name)
         transaction.Commit()
 
+        sheet_lines = "\n".join(format_sheet_list(viewset))
         TaskDialog.Show(
             "Crear Print Set",
-            "Print Set creado (no activado):\n- Nombre: {0}\n- Nº hojas: {1}".format(set_name, viewset.Size),
+            "Print Set creado (no activado):\n- Nombre: {0}\n- Nº hojas: {1}\n\nHojas incluidas:\n{2}".format(set_name, viewset.Size, sheet_lines),
         )
     except Exception as exc:
         try:
@@ -240,5 +274,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
