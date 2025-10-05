@@ -84,18 +84,56 @@ def unique_pdf_path(folder, view):
         index += 1
 
 
-def wait_for_pdf(path, timeout=120.0, poll=0.25):
+def wait_for_pdf(path, timeout=120.0, poll=0.25, stable_cycles=3, min_size=1024):
     start = time.time()
+    last_size = None
+    stable_count = 0
+
     while time.time() - start < timeout:
-        if os.path.exists(path) and os.path.getsize(path) > 1024:
-            try:
-                with open(path, 'rb') as stream:
-                    header = stream.read(5)
-                if header.startswith(b'%PDF-'):
-                    return True
-            except Exception:
-                pass
+        if not os.path.exists(path):
+            time.sleep(poll)
+            continue
+
+        try:
+            current_size = os.path.getsize(path)
+        except OSError:
+            current_size = 0
+
+        if current_size < min_size:
+            last_size = None
+            stable_count = 0
+            time.sleep(poll)
+            continue
+
+        if last_size == current_size:
+            stable_count += 1
+        else:
+            last_size = current_size
+            stable_count = 1
+
+        try:
+            with open(path, 'rb') as stream:
+                header = stream.read(5)
+                if not header.startswith(b'%PDF-'):
+                    time.sleep(poll)
+                    continue
+
+                if stable_count >= stable_cycles:
+                    seek_pos = max(0, current_size - 4096)
+                    stream.seek(seek_pos)
+                    tail = stream.read()
+                    if b'%%EOF' in tail:
+                        return True
+        except Exception:
+            pass
+
         time.sleep(poll)
+
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except Exception:
+            pass
     return False
 
 

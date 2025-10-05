@@ -1,0 +1,5 @@
+title: Duct + Fittings Surface (CSV)
+tooltip: Calcula superficie exterior [m²] de Ducts y Duct Fittings (circular/rect/oval) sin crear parámetros; exporta detalle + resumen a CSV.
+author: Valtria / DCA
+min_revit_version: 2019
+max_revit_version: 2026
