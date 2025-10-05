@@ -13,7 +13,7 @@ for _path in (EXTENSION_DIR, LIB_DIR):
     if _path and _path not in sys.path:
         sys.path.insert(0, _path)
 
-from Autodesk.Revit.DB import ElementId, IFCExportOptions
+from Autodesk.Revit.DB import ElementId, IFCExportOptions, Transaction
 try:
     from Autodesk.Revit.DB.IFC import (
         ExporterIFC,
@@ -53,6 +53,10 @@ _BLOCKED_VIEWTYPES = {
 }
 
 _DEFAULT_IFC_VERSION = None
+
+class ReadOnlyExportError(RuntimeError):
+    """Raised when export requires write access to the model."""
+
 if IFCVersion is not None:
     for candidate in ('IFC2x3CV2', 'IFC2x3'):
         if hasattr(IFCVersion, candidate):
@@ -248,25 +252,42 @@ def export_view(doc, view, target_folder, configuration, debug):
     options = build_ifc_options(doc, view, configuration, debug)
     full_path, file_name = _ensure_ifc_path(target_folder, view.Name)
     debug.add('Target IFC path: {0}'.format(full_path))
-    exporter_success = False
-    if ExporterIFC is not None:
-        try:
-            ExporterIFC.ExportDoc(doc, full_path, options)
-            debug.add('ExporterIFC.ExportDoc finished without raising.')
-            exporter_success = True
-        except Exception as exporter_error:
-            debug.add('ExporterIFC.ExportDoc failed: {0}'.format(exporter_error))
-            debug.add(traceback.format_exc())
-    if exporter_success:
-        return True
+
+    temp_txn = None
+    txn_started = False
     try:
-        result = doc.Export(target_folder, file_name, options)
-        debug.add('doc.Export(folder, filename, options) returned: {0}'.format(result))
-        return bool(result)
-    except Exception as export_error:
-        debug.add('doc.Export(folder, filename, options) failed: {0}'.format(export_error))
-        debug.add(traceback.format_exc())
-        return False
+        temp_txn = Transaction(doc, 'IFC Export (temp)')
+        temp_txn.Start()
+        txn_started = True
+    except Exception:
+        temp_txn = None
+        txn_started = False
+
+    try:
+        exporter_success = False
+        if ExporterIFC is not None:
+            try:
+                ExporterIFC.ExportDoc(doc, full_path, options)
+                debug.add('ExporterIFC.ExportDoc finished without raising.')
+                exporter_success = True
+            except Exception as exporter_error:
+                debug.add('ExporterIFC.ExportDoc failed: {0}'.format(exporter_error))
+                debug.add(traceback.format_exc())
+        if exporter_success:
+            return True
+        try:
+            result = doc.Export(target_folder, file_name, options)
+            debug.add('doc.Export(folder, filename, options) returned: {0}'.format(result))
+            return bool(result)
+        except Exception as export_error:
+            debug.add('doc.Export(folder, filename, options) failed: {0}'.format(export_error))
+            debug.add(traceback.format_exc())
+            message = _ensure_text(export_error).lower()
+            if 'no open transaction' in message or 'read-only' in message or 'modifying is forbidden' in message:
+                raise ReadOnlyExportError('El documento esta abierto en modo solo lectura. Guarda una copia editable o sincroniza antes de exportar.')
+            return False
+    finally:
+        if temp_txn is not None and txn_started:\r\n            try:\r\n                temp_txn.RollBack()\r\n            except Exception:\r\n                pass
 
 
 def main():
@@ -298,6 +319,11 @@ def main():
         debug.add('Created export folder.')
     try:
         success = export_view(doc, active_view, export_folder, configuration, debug)
+    except ReadOnlyExportError as exc:
+        forms.alert(_ensure_text(exc), title='Export Active View to IFC', warn_icon=True)
+        debug.add('Read-only export error: {0}'.format(exc))
+        debug.dump()
+        return
     except Exception as exc:
         log_exception(exc)
         debug.add('Unexpected exception: {0}'.format(exc))
@@ -316,6 +342,12 @@ if __name__ == '__main__':
         main()
     except Exception as main_error:
         log_exception(main_error)
+
+
+
+
+
+
 
 
 
