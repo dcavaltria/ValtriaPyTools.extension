@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Crear Print Set desde Sheets seleccionadas (o selector si no hay selección),
 SIN dejar el set como activo en el Print dialog.
@@ -140,8 +140,7 @@ def save_print_set_without_changing_current(doc, vset, set_name):
 
     try:
         # usar Select de forma temporal para poder asignar Views
-        pm.PrintRange = PrintRange.Select
-        vss.CurrentViewSheetSet.Views = vset
+        pm.PrintRange = PrintRange.Select\r\n        pm.Apply()\r\n        vss.CurrentViewSheetSet.Views = vset
 
         # primer intento: guardar
         try:
@@ -152,14 +151,7 @@ def save_print_set_without_changing_current(doc, vset, set_name):
             vss.SaveAs(set_name)
     finally:
         # --- RESTAURAR estado original pase lo que pase ---
-        try:
-            restore_current_views(vss, original_views)
-        except:
-            pass
-        try:
-            pm.PrintRange = original_range
-        except:
-            pass
+        try:\r\n            restore_current_views(vss, original_views)\r\n        except:\r\n            pass\r\n        try:\r\n            pm.PrintRange = original_range\r\n            pm.Apply()\r\n        except:\r\n            pass
 
 # ---------- main ----------
 def main():

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Print selected views or sheets to PDF without altering persistent print sets."""
 
 import os
@@ -21,12 +21,12 @@ from _lib.valtria_lib import (
 
 
 def sanitize_name(text):
-    return re.sub(r'[\\/:*?"<>|]', '_', text)
+    return re.sub(r"[\\/:*?\"<>|]", "_", text)
 
 
 def describe_view(view):
     if isinstance(view, ViewSheet):
-        return '{0} - {1}'.format(view.SheetNumber, view.Name)
+        return "{0} - {1}".format(view.SheetNumber, view.Name)
     return view.Name
 
 
@@ -49,11 +49,68 @@ def ensure_folder(path):
         os.makedirs(path)
 
 
+class TempPrintSession(object):
+    """Encapsulate temporary print settings and ensure restoration."""
+
+    def __init__(self, doc):
+        self.doc = doc
+        self.print_manager = doc.PrintManager
+        self._settings = self.print_manager.ViewSheetSetting
+        self._transaction = Transaction(doc, 'Temp Print Session')
+        self._has_started = False
+        self._transaction.Start()
+        self._has_started = True
+        self._original_range = self.print_manager.PrintRange
+        self._original_to_file = self.print_manager.PrintToFile
+        self._original_file = self.print_manager.PrintToFileName
+        self._original_views = self._clone_current_views()
+
+    def _clone_current_views(self):
+        results = []
+        try:
+            current_set = self._settings.CurrentViewSheetSet
+            if current_set:
+                for view in current_set.Views:
+                    results.append(view)
+        except Exception:
+            pass
+        return results
+
+    def _restore_current_views(self):
+        try:
+            viewset = ViewSet()
+            for view in self._original_views:
+                if view is not None:
+                    viewset.Insert(view)
+            self._settings.CurrentViewSheetSet.Views = viewset
+        except Exception:
+            pass
+
+    def dispose(self):
+        try:
+            self.print_manager.PrintRange = self._original_range
+        except Exception:
+            pass
+        try:
+            self.print_manager.PrintToFile = self._original_to_file
+            self.print_manager.PrintToFileName = self._original_file
+        except Exception:
+            pass
+        self._restore_current_views()
+        try:
+            self.print_manager.Apply()
+        except Exception:
+            pass
+        if self._has_started:
+            try:
+                self._transaction.RollBack()
+            except Exception:
+                pass
+
+
 def print_views(doc, views, folder):
-    print_manager = doc.PrintManager
-    original_range = print_manager.PrintRange
-    original_to_file = print_manager.PrintToFile
-    original_file = print_manager.PrintToFileName
+    session = TempPrintSession(doc)
+    print_manager = session.print_manager
     print_manager.PrintRange = PrintRange.Select
     print_manager.Apply()
     try:
@@ -63,24 +120,13 @@ def print_views(doc, views, folder):
             ensure_folder(os.path.dirname(target))
             viewset = ViewSet()
             viewset.Insert(view)
-            transaction = Transaction(doc, 'Temporary Print ViewSet')
-            transaction.Start()
-            try:
-                setting = print_manager.ViewSheetSetting
-                setting.CurrentViewSheetSet.Views = viewset
-                transaction.Commit()
-            except Exception:
-                transaction.RollBack()
-                raise
+            session._settings.CurrentViewSheetSet.Views = viewset
             print_manager.PrintToFile = True
             print_manager.PrintToFileName = target
             print_manager.Apply()
             print_manager.SubmitPrint()
     finally:
-        print_manager.PrintToFile = original_to_file
-        print_manager.PrintToFileName = original_file
-        print_manager.PrintRange = original_range
-        print_manager.Apply()
+        session.dispose()
 
 
 def main():
@@ -110,4 +156,3 @@ if __name__ == '__main__':
         main()
     except Exception as main_error:
         log_exception(main_error)
-
