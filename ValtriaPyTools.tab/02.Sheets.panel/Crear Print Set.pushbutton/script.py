@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 """
-Crear Print Set desde Sheets seleccionadas (o selector si no hay selección),
-SIN dejar el set como activo en el Print dialog.
+Crear Print Set desde Sheets seleccionadas (o selector si no hay seleccion),
+SIN dejar el set como activo en el dialogo de impresion.
 
 - Pide nombre (default con fecha/hora)
 - Ordena por SheetNumber
@@ -11,149 +11,190 @@ SIN dejar el set como activo en el Print dialog.
 Autor: VALTRIA / DCA.DynamoPython.helper
 Compat: pyRevit (IronPython), Revit 2019+
 """
-import clr, traceback
+import clr
+import traceback
 from datetime import datetime
 
-from pyrevit import revit, DB, forms
-from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.DB import (
-    ViewSheet, ViewSet, Transaction, PrintRange, FilteredElementCollector
+    FilteredElementCollector,
+    PrintRange,
+    Transaction,
+    ViewSet,
+    ViewSheet,
 )
+from Autodesk.Revit.UI import TaskDialog
+from pyrevit import forms, revit
 
-# ---------- UI helpers ----------
+
 def ask_string(title, prompt, default_text):
     try:
         return forms.ask_for_string(default=default_text, prompt=prompt, title=title)
-    except:
-        # WinForms fallback
+    except Exception:
         clr.AddReference("System.Windows.Forms")
         clr.AddReference("System.Drawing")
-        from System.Windows.Forms import (Form, Label, TextBox, Button, DialogResult)
-        from System.Drawing import Size, Point, ContentAlignment
-        f = Form(); f.Text = title; f.FormBorderStyle = 3; f.StartPosition = 1
-        f.ClientSize = Size(420,140); f.MinimizeBox = False; f.MaximizeBox = False
-        lab = Label(); lab.Text = prompt; lab.Size = Size(380,20); lab.Location = Point(20,15)
-        f.Controls.Add(lab)
-        tb = TextBox(); tb.Text = default_text or ""; tb.Size = Size(380,25); tb.Location = Point(20,45)
-        f.Controls.Add(tb)
-        ok = Button(); ok.Text = "OK"; ok.DialogResult = DialogResult.OK; ok.Location = Point(230,90)
-        f.Controls.Add(ok)
-        ca = Button(); ca.Text = "Cancelar"; ca.DialogResult = DialogResult.Cancel; ca.Location = Point(320,90)
-        f.Controls.Add(ca)
-        f.AcceptButton = ok; f.CancelButton = ca
-        return tb.Text.strip() if f.ShowDialog() == DialogResult.OK else None
+        from System.Drawing import Point, Size
+        from System.Windows.Forms import Button, DialogResult, Form, Label, TextBox
 
-# ---------- selección ----------
+        form = Form()
+        form.Text = title
+        form.FormBorderStyle = 3
+        form.StartPosition = 1
+        form.ClientSize = Size(420, 140)
+        form.MinimizeBox = False
+        form.MaximizeBox = False
+
+        label = Label()
+        label.Text = prompt
+        label.Size = Size(380, 20)
+        label.Location = Point(20, 15)
+        form.Controls.Add(label)
+
+        textbox = TextBox()
+        textbox.Text = default_text or ""
+        textbox.Size = Size(380, 25)
+        textbox.Location = Point(20, 45)
+        form.Controls.Add(textbox)
+
+        ok_button = Button()
+        ok_button.Text = "OK"
+        ok_button.DialogResult = DialogResult.OK
+        ok_button.Location = Point(230, 90)
+        form.Controls.Add(ok_button)
+
+        cancel_button = Button()
+        cancel_button.Text = "Cancelar"
+        cancel_button.DialogResult = DialogResult.Cancel
+        cancel_button.Location = Point(320, 90)
+        form.Controls.Add(cancel_button)
+
+        form.AcceptButton = ok_button
+        form.CancelButton = cancel_button
+
+        return textbox.Text.strip() if form.ShowDialog() == DialogResult.OK else None
+
+
 def get_selected_sheets_from_browser(doc):
     uidoc = revit.uidoc
     if uidoc is None:
         return []
-    ids = list(uidoc.Selection.GetElementIds())
-    if not ids:
+    element_ids = list(uidoc.Selection.GetElementIds())
+    if not element_ids:
         return []
-    out = []
-    for eid in ids:
-        el = doc.GetElement(eid)
-        if isinstance(el, ViewSheet) and not el.IsPlaceholder:
-            out.append(el)
-    return out
+    sheets = []
+    for element_id in element_ids:
+        element = doc.GetElement(element_id)
+        if isinstance(element, ViewSheet) and not element.IsPlaceholder:
+            sheets.append(element)
+    return sheets
+
 
 def prompt_user_pick_sheets(doc):
-    all_sheets = list(FilteredElementCollector(doc).OfClass(ViewSheet).ToElements())
+    all_sheets = list(FilteredElementCollector(doc).OfClass(ViewSheet))
     if not all_sheets:
         return []
-    items = [forms.TemplateListItem(s, name=u"{0} | {1}".format(s.SheetNumber, s.Name))
-             for s in all_sheets]
+    items = [forms.TemplateListItem(sheet, name=u"{0} | {1}".format(sheet.SheetNumber, sheet.Name)) for sheet in all_sheets]
     picked = forms.SelectFromList.show(items, title="Selecciona Sheets", multiselect=True, button_name="Usar estas")
-    return [p.item for p in picked] if picked else []
+    return [item.item for item in picked] if picked else []
 
-# ---------- util ----------
+
 def sheet_sort_key(sheet):
-    sn = sheet.SheetNumber or ""
-    digits = [ch for ch in sn if ch.isdigit()]
+    sheet_number = sheet.SheetNumber or ""
+    digits = [ch for ch in sheet_number if ch.isdigit()]
     if digits:
         try:
-            return (0, int("".join(digits)), sn)
-        except:
+            return (0, int("".join(digits)), sheet_number)
+        except Exception:
             pass
-    return (1, sn)
+    return (1, sheet_number)
+
 
 def build_viewset(sheets):
-    vset = ViewSet()
-    for s in sorted(sheets, key=sheet_sort_key):
-        vset.Insert(s)
-    return vset
+    viewset = ViewSet()
+    for sheet in sorted(sheets, key=sheet_sort_key):
+        viewset.Insert(sheet)
+    return viewset
 
-def clone_current_views(vss):
-    """Devuelve lista de Views actualmente seleccionadas en el print dialog."""
-    original = []
+
+def clone_current_views(view_sheet_setting):
+    cloned = []
     try:
-        curset = vss.CurrentViewSheetSet
-        if curset:
-            it = curset.Views  # ViewSet enumerable
-            for v in it:
-                original.append(v)
-    except:
+        current = view_sheet_setting.CurrentViewSheetSet
+        if current:
+            for view in current.Views:
+                cloned.append(view)
+    except Exception:
         pass
-    return original
+    return cloned
 
-def restore_current_views(vss, views_list):
-    """Restaura las vistas previas como 'CurrentViewSheetSet'."""
+
+def restore_current_views(view_sheet_setting, views):
     try:
-        vs = ViewSet()
-        for v in views_list:
-            if v: vs.Insert(v)
-        vss.CurrentViewSheetSet.Views = vs
-    except:
+        viewset = ViewSet()
+        for view in views:
+            if view is not None:
+                viewset.Insert(view)
+        view_sheet_setting.CurrentViewSheetSet.Views = viewset
+    except Exception:
         pass
 
-def delete_set_if_exists(vss, name):
-    """Borra un set existente sin depender de ViewSheetSets (seguro entre versiones)."""
-    # 1) Intento directo por nombre (si la API lo permite en tu versión)
+
+def delete_set_if_exists(view_sheet_setting, name):
     try:
-        vss.Delete(name)
+        view_sheet_setting.Delete(name)
         return True
-    except:
+    except Exception:
         pass
-    # 2) Si existe la colección, intenta por objeto
     try:
-        sets_iter = vss.ViewSheetSets  # puede no existir
-        for s in sets_iter:
+        for viewset in view_sheet_setting.ViewSheetSets:
             try:
-                if s.Name == name:
-                    vss.Delete(s)
+                if viewset.Name == name:
+                    view_sheet_setting.Delete(viewset)
                     return True
-            except:
+            except Exception:
                 continue
-    except:
+    except Exception:
         pass
     return False
 
-def save_print_set_without_changing_current(doc, vset, set_name):
-    """Guarda el print set y RESTAURA el estado original del print dialog."""
-    pm = doc.PrintManager
-    vss = pm.ViewSheetSetting
 
-    # --- snapshot estado original ---
-    original_range = pm.PrintRange
-    original_views = clone_current_views(vss)
+def save_print_set_without_changing_current(doc, viewset, set_name):
+    print_manager = doc.PrintManager
+    original_range = print_manager.PrintRange
+    restore_allowed = (original_range == PrintRange.Select)
+
+    view_sheet_setting = None
+    original_views = []
+
+    if restore_allowed:
+        try:
+            view_sheet_setting = print_manager.ViewSheetSetting
+            original_views = clone_current_views(view_sheet_setting)
+        except Exception:
+            view_sheet_setting = None
+            original_views = []
+
+    if view_sheet_setting is None:
+        print_manager.PrintRange = PrintRange.Select
+        print_manager.Apply()
+        view_sheet_setting = print_manager.ViewSheetSetting
 
     try:
-        # usar Select de forma temporal para poder asignar Views
-        pm.PrintRange = PrintRange.Select\r\n        pm.Apply()\r\n        vss.CurrentViewSheetSet.Views = vset
-
-        # primer intento: guardar
+        view_sheet_setting.CurrentViewSheetSet.Views = viewset
         try:
-            vss.SaveAs(set_name)
-        except:
-            # borrar si ya existe y reintentar
-            delete_set_if_exists(vss, set_name)
-            vss.SaveAs(set_name)
+            view_sheet_setting.SaveAs(set_name)
+        except Exception:
+            delete_set_if_exists(view_sheet_setting, set_name)
+            view_sheet_setting.SaveAs(set_name)
     finally:
-        # --- RESTAURAR estado original pase lo que pase ---
-        try:\r\n            restore_current_views(vss, original_views)\r\n        except:\r\n            pass\r\n        try:\r\n            pm.PrintRange = original_range\r\n            pm.Apply()\r\n        except:\r\n            pass
+        if restore_allowed and view_sheet_setting is not None:
+            restore_current_views(view_sheet_setting, original_views)
+        try:
+            print_manager.PrintRange = original_range
+            print_manager.Apply()
+        except Exception:
+            pass
 
-# ---------- main ----------
+
 def main():
     doc = revit.doc
     if doc is None:
@@ -164,34 +205,40 @@ def main():
         if not sheets:
             sheets = prompt_user_pick_sheets(doc)
         if not sheets:
-            TaskDialog.Show("Crear Print Set",
-                            "No hay Sheets seleccionadas ni elegidas en el selector.")
+            TaskDialog.Show("Crear Print Set", "No hay Sheets seleccionadas ni elegidas en el selector.")
             return
 
         default_name = "VAL_{0}".format(datetime.now().strftime("%Y%m%d-%H%M%S"))
         set_name = ask_string("Crear Print Set", "Nombre del Print Set:", default_name)
         if not set_name or not set_name.strip():
-            TaskDialog.Show("Crear Print Set", "Operación cancelada. No se proporcionó nombre.")
+            TaskDialog.Show("Crear Print Set", "Operacion cancelada. No se proporciono nombre.")
             return
         set_name = set_name.strip()
 
-        vset = build_viewset(sheets)
+        viewset = build_viewset(sheets)
 
-        t = Transaction(doc, "Crear Print Set (sin activar)")
-        t.Start()
-        save_print_set_without_changing_current(doc, vset, set_name)
-        t.Commit()
+        transaction = Transaction(doc, "Crear Print Set (sin activar)")
+        transaction.Start()
+        save_print_set_without_changing_current(doc, viewset, set_name)
+        transaction.Commit()
 
-        TaskDialog.Show("Crear Print Set",
-                        "Print Set creado (no activado):\n- Nombre: {0}\n- Nº hojas: {1}".format(set_name, vset.Size))
+        TaskDialog.Show(
+            "Crear Print Set",
+            "Print Set creado (no activado):\n- Nombre: {0}\n- Nº hojas: {1}".format(set_name, viewset.Size),
+        )
     except Exception as exc:
         try:
-            if 't' in locals() and t.HasStarted() and not t.HasEnded():
-                t.RollBack()
-        except:
+            if 'transaction' in locals() and transaction.HasStarted() and not transaction.HasEnded():
+                transaction.RollBack()
+        except Exception:
             pass
-        TaskDialog.Show("Crear Print Set - Error",
-                        u"{0}\n\nTrace:\n{1}".format(exc, traceback.format_exc()))
+        TaskDialog.Show(
+            "Crear Print Set - Error",
+            u"{0}\n\nTrace:\n{1}".format(exc, traceback.format_exc()),
+        )
+
 
 if __name__ == "__main__":
     main()
+
+

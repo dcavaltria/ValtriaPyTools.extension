@@ -57,9 +57,9 @@ class TempPrintSession(object):
         self.print_manager = doc.PrintManager
         self._settings = self.print_manager.ViewSheetSetting
         self._transaction = Transaction(doc, 'Temp Print Session')
-        self._has_started = False
+        self._started = False
         self._transaction.Start()
-        self._has_started = True
+        self._started = True
         self._original_range = self.print_manager.PrintRange
         self._original_to_file = self.print_manager.PrintToFile
         self._original_file = self.print_manager.PrintToFileName
@@ -101,7 +101,7 @@ class TempPrintSession(object):
             self.print_manager.Apply()
         except Exception:
             pass
-        if self._has_started:
+        if self._started:
             try:
                 self._transaction.RollBack()
             except Exception:
