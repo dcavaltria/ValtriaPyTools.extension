@@ -2,6 +2,9 @@
 
 Extensión de pyRevit para los equipos de VALTRIA con utilidades de control de calidad, gestión de impresión y soporte a modelado MEP.
 
+<img width="938" height="100" alt="{A2DD10A5-D693-48D8-BE18-3C697C23DB3E}" src="https://github.com/user-attachments/assets/d57dbd87-e12e-4cee-a787-cc2fdf0b43e9" />
+
+
 ## Requisitos
 - Revit 2019 a 2026.
 - pyRevit estable con runtime de IronPython 2.7.
