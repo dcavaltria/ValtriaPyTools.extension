@@ -16,6 +16,29 @@ Extensión de pyRevit para los equipos de VALTRIA con utilidades de control de c
 3. Ejecuta `pyrevit caches clear` y después `pyrevit reload` (o reinicia Revit) para recargar la extensión.
 4. Abre Revit y verifica que aparecen las pestañas **VALTRIA Tools** y **ValtriaPyTools**.
 
+## Guía rápida de configuración de pyRevit
+Pensada para alguien sin experiencia en programación:
+
+1. **Instalar pyRevit**  
+   - Ve a [pyrevitlabs.io](https://www.pyrevitlabs.io) y descarga el instalador estable.  
+   - Durante la instalación elige la opción *Install for Current User*.
+2. **Configurar el runtime correcto**  
+   - Abre el menú Inicio de Windows y escribe `pyrevit` para abrir la aplicación **pyRevit CLI**.  
+   - Ejecuta el comando `pyrevit env`. Comprueba que en la sección `Installed Clones` aparece `default | master | <ruta>` y que el `Runtime` es **IronPython 2.7**.  
+   - Si no es IronPython 2.7, ejecuta `pyrevit clones switch master` y luego `pyrevit env` de nuevo para confirmar.
+3. **Añadir la extensión Valtria**  
+   - Con la CLI abierta, ejecuta `pyrevit extensions add <ruta_al_directorio_ValtriaPyTools.extension>`.  
+   - Si prefieres copiar la carpeta manualmente, asegúrate de que se encuentra en `%APPDATA%\pyRevit\Extensions`.
+4. **Limpiar cachés y recargar**  
+   - Ejecuta `pyrevit caches clear` y luego `pyrevit reload`.  
+   - Alternativa: cerrar Revit y volver a abrirlo tras limpiar la caché.
+5. **Verificación final en Revit**  
+   - Abre Revit.  
+   - Comprueba que en la cinta aparecen las pestañas **VALTRIA Tools** y **ValtriaPyTools**.  
+   - Pulsa cualquier botón de la pestaña para confirmar que se abre el cuadro de diálogo esperado.
+
+> Consejo: guarda esta guía en PDF y compártela con el equipo para acelerar futuras instalaciones.
+
 ## Qué incluye cada botón
 
 ### Pestaña: VALTRIA Tools (existente)
