@@ -2,7 +2,8 @@
 
 Extensión de pyRevit pensada para los equipos de VALTRIA con utilidades de control de calidad, documentación, IA aplicada y soporte al modelado MEP.
 
-![Valtria PyTools ribbon](https://github.com/user-attachments/assets/d57dbd87-e12e-4cee-a787-cc2fdf0b43e9)
+<img width="1870" height="98" alt="{D9F984DE-C044-4F1E-9197-80F89B8D41E1}" src="https://github.com/user-attachments/assets/6030207b-0369-4a95-b237-962c7b4209d4" />
+
 
 ## Índice
 - [Requisitos](#requisitos)
