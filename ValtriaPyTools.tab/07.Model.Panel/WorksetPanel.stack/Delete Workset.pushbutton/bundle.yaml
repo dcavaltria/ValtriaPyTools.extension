@@ -1,0 +1,7 @@
+title: Delete Workset
+tooltip: |-
+  Elimina o transfiere los elementos de un workset.
+  1. Selecciona el workset origen.
+  2. Decide si borrar elementos o transferirlos.
+  3. Confirma la operacion para ejecutar el borrado.
+author: Valtria | BIM Tools

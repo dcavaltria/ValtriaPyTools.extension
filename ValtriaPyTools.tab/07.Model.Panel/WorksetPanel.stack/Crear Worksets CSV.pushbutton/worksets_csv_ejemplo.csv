@@ -1,0 +1,5 @@
+Type,LinkName,Workset
+RVT,EJEMPLO_ARQ.rvt,999_Links-ARQ
+RVT,EJEMPLO_MEP.rvt,999_Links-MEP
+RVT,EJEMPLO_STR.rvt,999_Links-STR
+CSV,EJEMPLO_MARCADOR.csv,000_COO_Datums_LevelsGridsScopeBoxes

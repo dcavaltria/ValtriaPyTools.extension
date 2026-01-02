@@ -1,0 +1,9 @@
+Transferencia de Project Browser
+Fecha: 20251218_165854
+Origen: Project template Valtria_ENG (2024) [V:\610 Valtria\03 REVIT\00 TEMPLATES\Project template Valtria_ENG (2024).rte]
+Destino: 10602574-DW-001-HVAC-Building C_user22BASFL [C:\Users\david.carreras\Documents\10602574-DW-001-HVAC-Building C_user22BASFL.rvt]
+
+Resultado:
+- [copiado] Hojas | VALTRIA
+- [copiado] Tablas | VALTRIA
+- [copiado] Vistas | VALTRIA

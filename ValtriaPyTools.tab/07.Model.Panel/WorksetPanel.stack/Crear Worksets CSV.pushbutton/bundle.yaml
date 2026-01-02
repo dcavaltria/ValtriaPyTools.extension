@@ -1,0 +1,7 @@
+title: Crear Worksets CSV
+tooltip: |-
+  Crea worksets de usuario a partir de un archivo CSV.
+  1. Selecciona el CSV de ejemplo o el que utilices en tu proyecto.
+  2. Confirma la lista detectada y las advertencias.
+  3. Elige si se crean cerrados/no visibles o abiertos/visibles.
+author: Valtria | BIM Tools

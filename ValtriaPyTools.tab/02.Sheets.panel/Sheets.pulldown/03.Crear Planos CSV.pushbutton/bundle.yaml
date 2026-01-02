@@ -1,0 +1,6 @@
+title: Crear Planos CSV
+tooltip: Crea planos desde un CSV con Sheet Number y Sheet Name, asignando CATEGORIA PLANO y titleblock.
+author: VALTRIA Digital
+min_revit_version: 2019
+max_revit_version: 2026
+availability_class_name: pyRevitLabs.PyRevit.Runtime.RevitCommonAvailability

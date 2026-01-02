@@ -1,0 +1,6 @@
+title: Renombrar Hojas
+tooltip: Renombra numero y/o nombre de hojas seleccionadas con prefijo, sufijo o busqueda y reemplazo.
+author: VALTRIA Digital
+min_revit_version: 2019
+max_revit_version: 2026
+availability_class_name: pyRevitLabs.PyRevit.Runtime.RevitCommonAvailability

@@ -1,0 +1,6 @@
+title: Colocar Leyenda
+tooltip: Inserta una vista de leyenda seleccionada en todas las hojas elegidas.
+author: VALTRIA Digital
+min_revit_version: 2019
+max_revit_version: 2026
+availability_class_name: pyRevitLabs.PyRevit.Runtime.RevitCommonAvailability

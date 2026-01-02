@@ -1,0 +1,8 @@
+title: Super Renamer
+tooltip: |-
+  1. Usa la selección actual o elige elementos en pantalla.
+  2. Confirma el nombre del parámetro a modificar (por defecto Mark).
+  3. Configura las operaciones: prefijo, buscar/reemplazar y/o sufijo.
+  4. Revisa el resumen de cambios propuestos y confirma.
+  5. Aplica los cambios sobre los elementos seleccionados.
+author: Valtria | BIM Tools

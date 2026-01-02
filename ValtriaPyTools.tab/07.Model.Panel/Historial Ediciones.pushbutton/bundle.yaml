@@ -1,0 +1,6 @@
+title: Historial Ediciones
+tooltip: Muestra el historial de edicion (fecha y usuario) del elemento seleccionado.
+author: VALTRIA Digital
+min_revit_version: 2019
+max_revit_version: 2026
+availability_class_name: pyRevitLabs.PyRevit.Runtime.RevitCommonAvailability

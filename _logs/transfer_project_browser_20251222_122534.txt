@@ -1,0 +1,9 @@
+Transferencia de Project Browser
+Fecha: 20251222_122534
+Origen: 10602574-DW-001-HVAC-Building C_user22BASFL [C:\Users\david.carreras\Documents\10602574-DW-001-HVAC-Building C_user22BASFL.rvt]
+Destino: 10602574-DW-002-HVAC-Building D_user22BASFL [C:\Users\david.carreras\Documents\10602574-DW-002-HVAC-Building D_user22BASFL.rvt]
+
+Resultado:
+- [copiado] Hojas | VALTRIA
+- [copiado] Tablas | VALTRIA
+- [copiado] Vistas | VALTRIA
