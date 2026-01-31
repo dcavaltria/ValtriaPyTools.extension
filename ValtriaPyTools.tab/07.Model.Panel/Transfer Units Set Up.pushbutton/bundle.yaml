@@ -1,0 +1,6 @@
++title: Transfer Units Set Up
++tooltip: Copia la configuracion de unidades desde un proyecto abierto al proyecto destino.
++author: VALTRIA Digital
++min_revit_version: 2019
++max_revit_version: 2026
++availability_class_name: pyRevitLabs.PyRevit.Runtime.RevitCommonAvailability

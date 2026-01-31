@@ -73,6 +73,7 @@ Para ambos asistentes configura `api_config.json` con tu `api_key`. Los instalad
 - **Batch Shared Parameters**: agrega varios parámetros compartidos de una sola vez a categorías seleccionadas (instancia o tipo).
 - **Cargar Familias**: selecciona y carga archivos RFA desde una carpeta con confirmación.
 - **Corregir Links en Bulk**: herramienta en desarrollo para corregir múltiples archivos RVT con links incorrectos.
+- **Transfer Units Set Up**: copia la configuracion de unidades entre proyectos abiertos.
 - **Mostrar Burbujas Grid**: activa las burbujas de rejilla en ambos extremos para todas las grids visibles de la vista activa.
 - **Renombrar Tipos**: búsqueda y reemplazo masivo sobre nombres de tipos (o parámetros relacionados), respetando conflictos y campos de solo lectura.
 - **Super Renamer**: edición guiada del parámetro `Mark` (u otro) sobre la selección actual añadiendo prefijos, sufijos o reemplazos con vista previa.
